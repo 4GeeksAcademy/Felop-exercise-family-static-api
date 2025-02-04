@@ -15,13 +15,8 @@ CORS(app)
 # create the jackson family object
 jackson_family = FamilyStructure("Jackson")
 
-initial_members = [
-    {"first_name": "John", "age": 33, "lucky_numbers": [7, 13, 22]},
-    {"first_name": "Jane", "age": 35, "lucky_numbers": [10, 14, 3]},
-    {"first_name": "Jimmy", "age": 5, "lucky_numbers": [1]}
-]
-for member in initial_members:
-    jackson_family.add_member(member)
+
+
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -34,7 +29,7 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/members', methods=['GET'])
-def get_members():
+def get_all_members():
     members = jackson_family.get_all_members()
     return jsonify(members),200
 
@@ -54,22 +49,22 @@ def add_member():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Invalid input"}), 400
-    if "name" not in data or "age" not in data:
+    if "first_name" not in data or "age" not in data:
         return jsonify({"error": "Missing required fields"}), 400
-    jackson_family.add_member(data)
-    return jsonify({"message": "Member added"}), 200
+    new_member= jackson_family.add_member(data)
+    return jsonify(new_member),200
 
 
 # Elimina un miembro por su ID
 @app.route('/member/<int:member_id>', methods=['DELETE'])
-def delete_member(id):
-    member = jackson_family.get_member(id)
+def delete_member(member_id):
+    member = jackson_family.get_member(member_id)
     if not member:
         
         return jsonify({"error": "Member not found"}), 404
     
     
-    jackson_family.delete_member(id)
+    jackson_family.delete_member(member_id)
     return jsonify({"done": True}), 200
 
 # this only runs if `$ python src/app.py` is executed
